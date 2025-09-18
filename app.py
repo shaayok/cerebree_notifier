@@ -22,7 +22,7 @@ app = Flask(__name__)
 #         print("Error:", e)
 #         return jsonify({"status": False, "error": str(e)}), 500
 
-
+@app.route("/send-offer-letter", methods=["POST"])
 def send_offer_letter():
     data = request.json or {}
     if not data:
