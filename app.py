@@ -4,22 +4,35 @@ from send_offer_letter import send_offer_letter_html
 from flask import Flask, request, render_template_string
 import requests
 from dotenv import load_dotenv
+import threading
 load_dotenv()
 
 app = Flask(__name__)
 
-@app.route("/send-offer-letter", methods=["POST"])
+# @app.route("/send-offer-letter", methods=["POST"])
+# def send_offer_letter():
+#     data = request.json or {}
+#     if not data:
+#         return jsonify({"status": False, "error": "Missing JSON payload"}), 400
+
+#     try:
+#         send_offer_letter_html(data)   # your function that builds PDF + sends email
+#         return jsonify({"status": True, "message": "Offer letter email sent"}), 200
+#     except Exception as e:
+#         print("Error:", e)
+#         return jsonify({"status": False, "error": str(e)}), 500
+
+
 def send_offer_letter():
     data = request.json or {}
     if not data:
         return jsonify({"status": False, "error": "Missing JSON payload"}), 400
 
-    try:
-        send_offer_letter_html(data)   # your function that builds PDF + sends email
-        return jsonify({"status": True, "message": "Offer letter email sent"}), 200
-    except Exception as e:
-        print("Error:", e)
-        return jsonify({"status": False, "error": str(e)}), 500
+    # Launch the mail send in a background thread
+    threading.Thread(target=send_offer_letter_html, args=(data,), daemon=True).start()
+
+    # Return immediately
+    return jsonify({"status": True, "message": "Offer letter queued"}), 200
 
 
 @app.route("/accept_offer", methods=["GET"])

@@ -144,7 +144,7 @@ def send_offer_letter_html(data):
             <p>Location: {data.get('company_location','')} | Work Mode: {data.get('work_mode','')}</p>
             <p>Please find your official offer letter attached to this email.</p>
             <p style="margin:20px 0;">
-                <a href="http://127.0.0.1:8000/accept_offer?candidateId={data.get('candidateId')}&hiring_stage=offer_letter_accepted" 
+                <a href="https://cerebree-notifier.onrender.com/accept_offer?candidateId={data.get('candidateId')}&hiring_stage=offer_letter_accepted" 
                    style="background:#4CAF50;color:white;padding:10px 18px;
                    text-decoration:none;border-radius:6px;">
                    I Accept
