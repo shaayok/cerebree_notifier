@@ -5,9 +5,11 @@ from flask import Flask, request, render_template_string
 import requests
 from dotenv import load_dotenv
 import threading
+from flask_cors import CORS
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 # @app.route("/send-offer-letter", methods=["POST"])
 # def send_offer_letter():
@@ -91,6 +93,12 @@ def accept_offer():
     </html>
     """
     return render_template_string(html)
+
+
+@app.route("/health", methods=["GET"])
+def health_check():
+
+    return jsonify({"status": "ok"}), 200
 
 
 if __name__ == "__main__":
