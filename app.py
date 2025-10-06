@@ -27,8 +27,22 @@ CORS(app)
 @app.route("/send-offer-letter", methods=["POST"])
 def send_offer_letter():
     data = request.json or {}
+    candidateId = data.get("candidateId")
+    hiring_stage = "offer_letter_sent"
     if not data:
         return jsonify({"status": False, "error": "Missing JSON payload"}), 400
+    # Call external API to update hiring stage
+    api_url = "https://cerebree.com/server/chatbotapi/updateHiringStage"
+    payload = {
+        "candidateId": candidateId,
+        "hiring_stage": hiring_stage,
+        "botSecretCode": os.getenv("BS1") + "#" + os.getenv("BS2")
+    }
+    try:
+        resp = requests.post(api_url, json=payload, timeout=10)
+        print("Hiring stage update response:", resp.status_code, resp.text)
+    except Exception as e:
+        print("Error calling updateHiringStage API:", e)
 
     # Launch the mail send in a background thread
     threading.Thread(target=send_offer_letter_html, args=(data,), daemon=True).start()
