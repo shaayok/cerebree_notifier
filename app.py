@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import os
-from send_offer_letter import send_offer_letter_html
+from send_offer_letter import send_offer_letter_html, send_welcome_mail
 from flask import Flask, request, render_template_string
 import requests
 from dotenv import load_dotenv
@@ -68,45 +68,53 @@ def accept_offer():
 
     try:
         resp = requests.post(api_url, json=payload, timeout=10)
-        print("Hiring stage update response:", resp.status_code, resp.text)
+        data = resp.json()
+        print(data)
     except Exception as e:
         print("Error calling updateHiringStage API:", e)
+        return render_template_string("<h2>Server Error. Try again later.</h2>")
 
-    # Render thank you page
-    html = f"""
-    <html>
-    <head>
-        <title>Offer Accepted</title>
-        <style>
-            body {{
-                font-family: Arial, sans-serif;
-                background: #f9f9f9;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                color: #333;
-            }}
-            .container {{
-                background: white;
-                padding: 40px;
-                border-radius: 10px;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-                text-align: center;
-            }}
-            h1 {{ color: #4CAF50; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Thank you!</h1>
-            <p>We have received your acceptance.</p>
-            <p>Our HR team will get back to you soon.</p>
-        </div>
-    </body>
-    </html>
-    """
-    return render_template_string(html)
+    # Handle different response cases
+    if data.get("message") == "user_already_exist":
+        html = """
+        <html><body style='font-family:sans-serif;text-align:center;margin-top:10%;'>
+        <h1 style='color:#E67E22;'>Already Registered</h1>
+        <p>You have already been registered in our system.</p>
+        <p>If you believe this is an error, please contact HR.</p>
+        </body></html>
+        """
+        return render_template_string(html)
+
+    elif data.get("message") == "candidate_not_found":
+        html = """
+        <html><body style='font-family:sans-serif;text-align:center;margin-top:10%;'>
+        <h1 style='color:#C0392B;'>No Record Found</h1>
+        <p>Sorry, we could not find your record. Please contact the admin.</p>
+        </body></html>
+        """
+        return render_template_string(html)
+
+    elif data.get("status") is True and data.get("code") == 200:
+        emp = data["data"]
+        threading.Thread(target=send_welcome_mail, args=(emp,), daemon=True).start()
+
+        html = f"""
+        <html><body style='font-family:sans-serif;text-align:center;margin-top:10%;'>
+        <h1 style='color:#2ECC71;'>Welcome {emp["fullname"]}!</h1>
+        <p>Your account has been created successfully.</p>
+        <p>Login using the credentials sent to your email.</p>
+        </body></html>
+        """
+        return render_template_string(html)
+
+    else:
+        html = """
+        <html><body style='font-family:sans-serif;text-align:center;margin-top:10%;'>
+        <h1 style='color:#7F8C8D;'>Unexpected Response</h1>
+        <p>Something went wrong. Please contact support.</p>
+        </body></html>
+        """
+        return render_template_string(html)
 
 
 @app.route("/health", methods=["GET"])

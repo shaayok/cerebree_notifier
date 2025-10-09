@@ -111,6 +111,7 @@ def send_offer_letter_html(data):
     "SGD": "S$",
     "AED": "د.إ"
     }
+    base_url = os.getenv("BASE_URL", "http://localhost:8000")
 
     # Parse hiring_info JSON
     hiring_info_str = data.get("hiring_info")
@@ -144,7 +145,7 @@ def send_offer_letter_html(data):
             <p>Location: {data.get('company_location','')} | Work Mode: {data.get('work_mode','')}</p>
             <p>Please find your official offer letter attached to this email.</p>
             <p style="margin:20px 0;">
-                <a href="https://cerebree-notifier-test.onrender.com/accept_offer?candidateId={data.get('candidateId')}&hiring_stage=offer_letter_accepted" 
+                <a href="{base_url}/accept_offer?candidateId={data.get('candidateId')}&hiring_stage=offer_letter_accepted" 
                    style="background:#4CAF50;color:white;padding:10px 18px;
                    text-decoration:none;border-radius:6px;">
                    I Accept
@@ -181,6 +182,83 @@ def send_offer_letter_html(data):
     print("HTML offer letter email sent successfully!")
 
 
+def send_welcome_mail(emp):
+    try:
+        to_email = emp["email"]
+        password = emp["password"]
+        login_url = emp["loginUrl"]
+        fullname = emp["fullname"]
+
+        gmail_user = os.getenv("GMAIL_USER")
+        gmail_app_password = os.getenv("GMAIL_APP_PASSWORD")
+
+        # --- Build HTML body ---
+        html_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 40px;">
+            <div style="max-width: 600px; margin: auto; background: white; border-radius: 10px;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 30px;">
+                <h2 style="color: #2ecc71; text-align: center;">Welcome Aboard, {fullname}!</h2>
+                <p style="font-size: 16px; color: #333;">
+                    We're excited to have you join the team! Your account has been created successfully.
+                </p>
+                <div style="background: #f0f4f8; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
+                    <p style="margin: 5px 0; font-size: 15px;"><strong>Username:</strong> {to_email}</p>
+                    <p style="margin: 5px 0; font-size: 15px;"><strong>Password:</strong> {password}</p>
+                </div>
+                <p style="font-size: 15px; color: #333;">
+                    You can log in using the link below:
+                </p>
+                <p style="text-align: center; margin: 30px 0;">
+                    <a href="{login_url}" style="background-color: #2ecc71; color: white;
+                    padding: 12px 24px; text-decoration: none; border-radius: 5px;
+                    font-weight: bold; font-size: 15px;">Login Now</a>
+                </p>
+                <p style="font-size: 14px; color: #666; text-align: center;">
+                    Regards,<br>HR Team
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+        # Create the email (HTML + plain fallback)
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Welcome to the Company!"
+        msg["From"] = gmail_user
+        msg["To"] = to_email
+
+        # Plain text version (for clients that block HTML)
+        plain_text = f"""
+        Hi {fullname},
+
+        Welcome aboard! Your account has been created successfully.
+
+        Username: {to_email}
+        Password: {password}
+
+        Login here: {login_url}
+
+        Regards,
+        HR Team
+        """
+
+        msg.attach(MIMEText(plain_text, "plain"))
+        msg.attach(MIMEText(html_body, "html"))
+
+        # Send via Gmail SMTP
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(gmail_user, gmail_app_password)
+            server.send_message(msg)
+
+        print("✅ Welcome mail sent successfully to", to_email)
+
+    except Exception as e:
+        print("❌ Failed to send email:", e)
+
+
+
 if __name__ == "__main__":
     sample_data = {
             "onboardId": "4",
@@ -194,4 +272,12 @@ if __name__ == "__main__":
             "hiring_hr_email": "trishasingh@cerebree.com",
             "hiringHrId": "1"
         }
-    send_offer_letter_html(sample_data)
+    #send_offer_letter_html(sample_data)
+    s ={
+        "fullname": "Sayak Samaddar",
+        "email": "sayaksamaddar@virtualemployee.com",
+        "password": "s#ko6lzLIW",
+        "company_id": "2",
+        "loginUrl": "https://cerebree.com/login",
+    }
+    send_welcome_mail(s)
