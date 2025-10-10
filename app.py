@@ -32,7 +32,7 @@ def send_offer_letter():
     if not data:
         return jsonify({"status": False, "error": "Missing JSON payload"}), 400
     # Call external API to update hiring stage
-    api_url = "https://cerebree.com/server/chatbotapi/updateHiringStage"
+    api_url = os.getenv("API_URL")
     payload = {
         "candidateId": candidateId,
         "hiring_stage": hiring_stage,
@@ -59,7 +59,7 @@ def accept_offer():
     print(candidateId,hiring_stage)
 
     # Call external API to update hiring stage
-    api_url = "https://cerebree.com/server/chatbotapi/updateHiringStage"
+    api_url = os.getenv("API_URL")
     payload = {
         "candidateId": candidateId,
         "hiring_stage": hiring_stage,
