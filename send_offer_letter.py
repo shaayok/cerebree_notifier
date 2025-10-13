@@ -112,7 +112,8 @@ def send_offer_letter_html(data):
     "AED": "د.إ"
     }
     base_url = os.getenv("BASE_URL", "http://localhost:8000")
-
+    login_url = os.getenv("LOGIN_URL", "https://test.cerebree.com/vertexlogin")
+    print(base_url)
     # Parse hiring_info JSON
     hiring_info_str = data.get("hiring_info")
     if hiring_info_str:
@@ -156,7 +157,7 @@ def send_offer_letter_html(data):
     </body>
     </html>
     """
-
+    print(html)
     # Generate PDF offer letter in memory
     pdf_buffer = build_offer_letter_pdf(data)
 
@@ -186,9 +187,8 @@ def send_welcome_mail(emp):
     try:
         to_email = emp["email"]
         password = emp["password"]
-        login_url = emp["loginUrl"]
+        login_url = os.getenv("LOGIN_URL", "https://test.cerebree.com/vertexlogin")
         fullname = emp["fullname"]
-
         gmail_user = os.getenv("GMAIL_USER")
         gmail_app_password = os.getenv("GMAIL_APP_PASSWORD")
 

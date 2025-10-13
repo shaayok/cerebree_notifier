@@ -65,7 +65,6 @@ def accept_offer():
         "hiring_stage": hiring_stage,
         "botSecretCode": os.getenv("BS1") + "#" + os.getenv("BS2")
     }
-
     try:
         resp = requests.post(api_url, json=payload, timeout=10)
         data = resp.json()
