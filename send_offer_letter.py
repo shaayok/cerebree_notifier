@@ -112,7 +112,7 @@ def send_offer_letter_html(data):
     "AED": "د.إ"
     }
     base_url = os.getenv("BASE_URL", "http://localhost:8000")
-    login_url = os.getenv("LOGIN_URL", "https://test.cerebree.com/vertexlogin")
+    login_url = os.getenv("LOGIN_URL", "https://cerework.cerebree.com/vertexlogin")
     print(base_url)
     # Parse hiring_info JSON
     hiring_info_str = data.get("hiring_info")
@@ -280,4 +280,5 @@ if __name__ == "__main__":
         "company_id": "2",
         "loginUrl": "https://cerebree.com/login",
     }
+
     send_welcome_mail(s)
