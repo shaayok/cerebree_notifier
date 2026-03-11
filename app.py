@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import os
-from send_offer_letter import send_offer_letter_html, send_welcome_mail
-# from send_offer_letter import send_offer_letter_html
+# from send_offer_letter import send_offer_letter_html, send_welcome_mail
+from send_offer_letter import send_offer_letter_html
 from flask import Flask, request, render_template_string
 import requests
 from dotenv import load_dotenv
@@ -94,34 +94,34 @@ def accept_offer():
         """
         return render_template_string(html)
 
-    elif data.get("status") is True and data.get("code") == 200:
-        emp = data["data"]
-        threading.Thread(target=send_welcome_mail, args=(emp,), daemon=True).start()
-
-        html = f"""
-        <html><body style='font-family:sans-serif;text-align:center;margin-top:10%;'>
-        <h1 style='color:#2ECC71;'>Welcome {emp["fullname"]}!</h1>
-        <p>Your account has been created successfully.</p>
-        <p>Login using the credentials sent to your email.</p>
-        </body></html>
-        """
-        return render_template_string(html)
-
     # elif data.get("status") is True and data.get("code") == 200:
-    #     candidate_name = ""
-    #     if isinstance(data.get("data"), dict):
-    #         candidate_name = data["data"].get("fullname", "")
-    
+    #     emp = data["data"]
+    #     threading.Thread(target=send_welcome_mail, args=(emp,), daemon=True).start()
+
     #     html = f"""
-    #     <html>
-    #     <body style='font-family:sans-serif;text-align:center;margin-top:10%;'>
-    #         <h1 style='color:#2ECC71;'>Thank You {candidate_name}!</h1>
-    #         <p>Your offer acceptance has been recorded successfully.</p>
-    #         <p>We will let you know the next steps soon.</p>
-    #     </body>
-    #     </html>
+    #     <html><body style='font-family:sans-serif;text-align:center;margin-top:10%;'>
+    #     <h1 style='color:#2ECC71;'>Welcome {emp["fullname"]}!</h1>
+    #     <p>Your account has been created successfully.</p>
+    #     <p>Login using the credentials sent to your email.</p>
+    #     </body></html>
     #     """
     #     return render_template_string(html)
+
+    elif data.get("status") is True and data.get("code") == 200:
+        # candidate_name = ""
+        # if isinstance(data.get("data"), dict):
+        #     candidate_name = data["data"].get("fullname", "")
+    
+        html = f"""
+        <html>
+        <body style='font-family:sans-serif;text-align:center;margin-top:10%;'>
+            <h1 style='color:#2ECC71;'>Thank You!</h1>
+            <p>Your offer acceptance has been recorded successfully.</p>
+            <p>We will let you know the next steps soon.</p>
+        </body>
+        </html>
+        """
+        return render_template_string(html)
 
     else:
         html = """
@@ -142,4 +142,5 @@ def health_check():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
