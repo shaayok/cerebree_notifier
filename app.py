@@ -40,7 +40,7 @@ def send_offer_letter():
         "botSecretCode": os.getenv("BS1") + "#" + os.getenv("BS2")
     }
     try:
-        print("payload: --> "payload)
+        print("payload: --> ",payload)
         resp = requests.post(api_url, json=payload, timeout=10)
         print("Hiring stage update response:", resp.status_code, resp.text)
     except Exception as e:
